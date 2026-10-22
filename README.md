@@ -121,7 +121,16 @@ Các biện pháp giảm bề mặt tấn công (WAF, hạn chế public access 
 
 Đây là tài liệu cộng đồng, dùng cho mục đích **phòng vệ, đào tạo và khắc phục lỗ hổng**. Các script kiểm tra chỉ đọc và không khai thác/quét Internet. Riêng `php2shell-remediate.sh` có thể cập nhật package hoặc thay đổi PHP-FPM pool sau các bước xác nhận rõ ràng; cần backup, DEV/UAT và change approval trước khi dùng trên PROD. Nội dung cập nhật theo bằng chứng đã công bố vào **22/10/2026**; cần đối chiếu advisory mới nhất trước khi thay đổi Production.
 
-**Maintainer:** PHUONGIT · **License:** [MIT](LICENSE) · [Security Policy](SECURITY.md)
+**Maintainer:** **Phương Nguyễn (PhuongIT)** · **License:** [MIT](LICENSE) · [Security Policy](SECURITY.md)
+
+### Thông tin tác giả & liên hệ
+
+- **Tác giả:** **Phương Nguyễn – PhuongIT**
+- **Email:** [phuongit.contact@gmail.com](mailto:phuongit.contact@gmail.com)
+- **Facebook:** [facebook.com/jsisen](https://facebook.com/jsisen)
+- **LinkedIn:** [linkedin.com/in/phuong-nguyen-van](https://www.linkedin.com/in/phuong-nguyen-van/)
+
+Mọi ý kiến đóng góp, phản hồi hoặc đề xuất cải tiến tài liệu có thể gửi qua các kênh liên hệ trên.
 
 ## 11. Script kiểm tra và menu khắc phục
 
