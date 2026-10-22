@@ -90,7 +90,7 @@ Khai thác thành công có **khả năng** dẫn tới: sửa hoặc thay nội
 
 ## 7. Khi chưa thể cập nhật
 
-Các biện pháp giảm bề mặt tấn công (WAF, hạn chế public access khi phù hợp, giới hạn request/upload, vô hiệu hóa tính năng rủi ro theo hướng dẫn PHP, theo dõi log, recycle worker) **chỉ là biện pháp tạm thời và không khắc phục hoàn toàn các CVE**. Ưu tiên cô lập dịch vụ nhạy cảm cho đến khi cập nhật an toàn. Tham khảo [Incident Response](docs/06-incident-response.md).
+Các biện pháp giảm bề mặt tấn công (WAF, hạn chế public access khi phù hợp, giới hạn request/upload, vô hiệu hóa tính năng rủi ro theo hướng dẫn PHP, theo dõi log, recycle worker) **chỉ là biện pháp tạm thời và không khắc phục hoàn toàn các CVE**. Ưu tiên cô lập dịch vụ nhạy cảm cho đến khi cập nhật an toàn. Tham khảo [Hướng dẫn giảm thiểu tạm thời và menu kiểm tra/cập nhật](docs/08-temporary-mitigations.md) và [Incident Response](docs/06-incident-response.md).
 
 ## 8. Tài liệu hướng dẫn
 
@@ -103,6 +103,8 @@ Các biện pháp giảm bề mặt tấn công (WAF, hạn chế public access 
 | [05 — Laravel](docs/05-laravel-hardening.md) | Runtime, Composer, worker, logs |
 | [06 — Incident Response](docs/06-incident-response.md) | Điều tra và ứng phó nghi xâm nhập |
 | [07 — Verification](docs/07-verification-checklist.md) | Checklist nghiệm thu DEV/UAT/PROD |
+| [08 — Temporary Mitigations](docs/08-temporary-mitigations.md) | Biện pháp giảm thiểu tạm thời, giới hạn và rủi ro |
+
 
 ## 9. Nguồn chính thức
 
@@ -117,6 +119,18 @@ Các biện pháp giảm bề mặt tấn công (WAF, hạn chế public access 
 
 ## 10. Tuyên bố sử dụng
 
-Đây là tài liệu cộng đồng, dùng cho mục đích **phòng vệ, đào tạo và khắc phục lỗ hổng**. Các script chỉ thu thập thông tin cục bộ; không thực hiện khai thác, quét Internet, cài package hay sửa cấu hình. Nội dung cập nhật theo bằng chứng đã công bố vào **22/10/2026**; cần đối chiếu advisory mới nhất trước khi thay đổi Production.
+Đây là tài liệu cộng đồng, dùng cho mục đích **phòng vệ, đào tạo và khắc phục lỗ hổng**. Các script kiểm tra chỉ đọc và không khai thác/quét Internet. Riêng `php2shell-remediate.sh` có thể cập nhật package hoặc thay đổi PHP-FPM pool sau các bước xác nhận rõ ràng; cần backup, DEV/UAT và change approval trước khi dùng trên PROD. Nội dung cập nhật theo bằng chứng đã công bố vào **22/10/2026**; cần đối chiếu advisory mới nhất trước khi thay đổi Production.
 
 **Maintainer:** PHUONGIT · **License:** [MIT](LICENSE) · [Security Policy](SECURITY.md)
+
+## 11. Script kiểm tra và menu khắc phục
+
+```bash
+# Kiểm tra chỉ đọc, không yêu cầu root
+bash scripts/php2shell-check.sh
+
+# Menu tương tác; các hành động thay đổi yêu cầu sudo và xác nhận
+sudo bash scripts/php2shell-remediate.sh
+```
+
+Menu có chức năng kiểm tra OS/PHP, đề xuất nâng đúng nhánh `8.2 → 8.2.35`, `8.3 → 8.3.36`, `8.4 → 8.4.27`, `8.5 → 8.5.12` và giảm thiểu PHP-FPM tạm thời khi chưa cập nhật được. **Không hỗ trợ ép version đúng từng số trên mọi repository**; cập nhật các gói ứng viên đã vá do APT cung cấp và không tự chạy nếu chỉ thấy phiên bản upstream thấp hơn mà chưa xác minh vendor backport. Giảm thiểu tạm thời không thay thế bản vá, có thể ảnh hưởng uploads/RAM và cần kiểm thử. [Chi tiết](docs/08-temporary-mitigations.md).

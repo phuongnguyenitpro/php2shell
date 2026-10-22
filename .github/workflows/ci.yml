@@ -14,6 +14,11 @@ jobs:
           bash -n scripts/lib/php-version.sh
           bash -n scripts/php2shell-audit.sh
           bash -n scripts/php2shell-verify.sh
+          bash -n scripts/php2shell-check.sh
+          bash -n scripts/php2shell-remediate.sh
+          bash -n tests/test-remediation-baseline.sh
           bash -n tests/run-tests.sh
       - name: Run local baseline tests
-        run: bash tests/run-tests.sh
+        run: |
+          bash tests/run-tests.sh
+          bash tests/test-remediation-baseline.sh
