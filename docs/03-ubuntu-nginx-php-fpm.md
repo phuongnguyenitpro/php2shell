@@ -1,46 +1,62 @@
-# 03 — Hướng dẫn Ubuntu / Debian, Nginx và PHP-FPM
+# 03 — Hướng dẫn cập nhật PHP trên Ubuntu/Debian, Nginx & PHP-FPM
 
-> Chỉ triển khai trên máy chủ được ủy quyền. Không chạy thay đổi production nếu chưa có backup, change approval và phương án rollback.
+> Chỉ thực hiện trên hệ thống có quyền quản trị. Không thay đổi PROD nếu chưa backup, change approval, kiểm tra vendor package và phương án rollback.
 
-## A. Inventory, backup
+## A. Kiểm kê trước khi chọn bản PHP
+
+**Không mặc định hệ thống đang chạy PHP 8.4.** Trước tiên chạy script liệt kê toàn bộ PHP Runtime ở các đường dẫn phổ biến:
+
+```bash
+bash scripts/php2shell-check.sh
+```
+
+Nếu không có repo, có thể chạy lệnh tổng quát:
 
 ```bash
 cat /etc/os-release
-php -v
-systemctl list-units --type=service --all 'php*-fpm.service'
-dpkg-query -W 'php*' 2>/dev/null
-apt-cache policy php8.4-cli php8.4-fpm
-sudo nginx -t
+command -v php >/dev/null 2>&1 && php -v || true
+if command -v dpkg-query >/dev/null 2>&1; then
+  dpkg-query -W -f='${binary:Package}\t${Version}\n' 'php*' 2>/dev/null || true
+fi
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl list-units --all --type=service 'php*-fpm.service' --no-pager
+fi
 ```
 
-Sao lưu mã nguồn, cơ sở dữ liệu, uploads, cấu hình `/etc/php/`, `/etc/nginx/`, xác nhận có thể khôi phục. Xác định đường dẫn PHP-FPM socket từ server block Nginx và phiên bản PHP của từng pool. Không đưa `.env`, khóa bí mật hoặc credentials vào issue/log công khai.
+Xác định chính xác `fastcgi_pass` trong Nginx vhost, socket và PHP-FPM pool đang xử lý HTTP request. PHP CLI có thể khác PHP-FPM. Container/custom build cần kiểm tra riêng.
 
-## B. DEV → UAT → PROD
+## B. Backup và đánh giá candidate package
 
-1. **DEV:** kiểm tra PHP extension, Composer platform requirements, deprecated API, PHP-FPM pool và cấu hình dự kiến.
-2. **UAT:** thực hiện test đăng nhập, API, DB, uploads, media, cron/queue, session/cookie và lỗi HTTP 5xx.
-3. **PROD:** lên maintenance window, sao lưu và thực hiện nâng security package từ repository tin cậy; không tùy tiện thay toàn bộ stack.
+- Backup source, database, uploads, `/etc/php/`, Nginx config, package manifest và VM snapshot (nếu có). Kiểm thử khả năng restore.
+- Chọn **đúng PHP branch đang phục vụ web**, chẳng hạn 8.2, 8.3, 8.4 hoặc 8.5. Không tự thay đổi nhánh đang dùng.
+- Kiểm tra gói PHP-FPM/CLI/extensions ở cùng nhánh, nguồn APT, package changelog và advisory.
+- **Nếu vendor backport phiên bản thấp hơn upstream**, dừng cập nhật tự động và xác minh USN/DSA tương ứng; không ép nâng nhánh chỉ để đổi version string.
 
-Ví dụ gói cần kiểm tra (không chạy nguyên lệnh khi package không phù hợp):
+Sử dụng menu tương tác có mô phỏng APT, xác nhận trước khi thay đổi:
 
 ```bash
-sudo apt update
-apt-cache policy php8.4-cli php8.4-common php8.4-fpm
-sudo apt install --only-upgrade php8.4-cli php8.4-common php8.4-fpm
-sudo systemctl restart php8.4-fpm
-sudo nginx -t && sudo systemctl reload nginx
-php-fpm8.4 -v
+sudo bash scripts/php2shell-remediate.sh
+# Chọn 1 để kiểm tra, 2 để chọn nhánh nâng package
 ```
 
-Đối chiếu extension đang cài và nâng các package liên quan; kiểm tra repo thực tế đã có CVE fix. Không dùng `composer update` hoặc database migration trên PROD như một phần vá PHP nếu chưa phê duyệt.
+Script chỉ hỗ trợ update qua APT cho Ubuntu/Debian và PHP-FPM layout thông dụng, khi APT candidate đáp ứng baseline upstream. Nó không tự sao lưu toàn bộ DB/source/VM trước khi nâng package. Không dùng `composer update` hay migration DB như biện pháp vá PHP nếu chưa phê duyệt.
 
-## C. Xác minh
+## C. DEV → UAT → PROD
 
-- Live web-vhost chạy PHP-FPM pool đã vá, không chỉ CLI.
-- Gói và changelog vendor có đủ hai CVE; không còn worker chạy binary cũ.
-- HTTP 200/301 hợp lệ; DB, API, login, upload, media và logs ổn định.
-- Theo dõi error logs Nginx/PHP-FPM và application sau thay đổi.
+1. **DEV:** test PHP extensions, Composer platform requirements, PHP-FPM pool, plugin/framework.
+2. **UAT:** test đăng nhập, API, database, uploads, media, session/cookie, cron/queue, PHP logs.
+3. **PROD:** maintenance window, backup/rollback point đã xác minh; cập nhật package qua repository tin cậy và restart PHP-FPM/web workers sau khi được phê duyệt.
 
-## D. Rollback
+## D. Xác minh sau cập nhật
 
-Chỉ khôi phục trong kịch bản được phê duyệt và không đưa runtime dễ bị khai thác trở lại Internet. Có thể đưa website vào maintenance/cô lập, sửa tương thích hoặc khôi phục bằng bản PHP an toàn khác. Rollback DB chỉ khi có thay đổi DB và đã được kiểm chứng.
+- Gói đang cài đã chứa bản vá **cả hai CVE** theo advisory từ vendor.
+- PHP-FPM pool thực sự phục vụ website chạy bản đã vá và không còn worker binary cũ.
+- Ứng dụng đáp ứng HTTP 200/301 hợp lệ; chức năng DB, API, login, upload/media hoạt động.
+- Kiểm tra logs PHP-FPM, Nginx và ứng dụng; giám sát lỗi mới.
+- Nếu nghi compromise: xem [Incident Response](06-incident-response.md).
+
+## E. Khi chưa thể cập nhật và rollback
+
+Các mitigation như giới hạn upload, vô hiệu hóa session upload progress và giới hạn bộ nhớ phù hợp chỉ giảm rủi ro tạm thời; **không sửa lỗi PHP Core**. [Hướng dẫn mitigation chi tiết](08-temporary-mitigations.md).
+
+Không rollback về một bản PHP dễ bị khai thác trên Internet. Khi xảy ra lỗi, cân nhắc cô lập service, sửa tương thích hoặc phục hồi sang phiên bản runtime an toàn khác.
