@@ -1,3 +1,9 @@
+## v2.0.0 development – Multi-Distro (2026-10-22)
+
+- New Bash entrypoint: `scripts/php2shell-multidistro.sh` for local inventory and package plan on APT, DNF, APK, Zypper, Pacman families.
+- Introduced shared `os-family.sh`, conservative vendor/backport checks and guarded RHEL-family DNF remediation. Ubuntu/Debian helper remains unchanged.
+- New OS-detection tests, CI job and operational documentation. **Experimental: no RHEL/Alma/Rocky PROD remediation has been integration-tested; do not release as stable until distro matrix passes.**
+
 # Changelog
 
 ## v2.0.0 — 2026-10-22

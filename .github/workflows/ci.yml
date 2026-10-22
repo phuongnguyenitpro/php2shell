@@ -18,7 +18,13 @@ jobs:
           bash -n scripts/php2shell-remediate.sh
           bash -n tests/test-remediation-baseline.sh
           bash -n tests/run-tests.sh
+          bash -n scripts/lib/os-family.sh
+          bash -n scripts/php2shell-multidistro.sh
+          bash -n tests/test-multidistro.sh
       - name: Run local baseline tests
         run: |
           bash tests/run-tests.sh
           bash tests/test-remediation-baseline.sh
+
+      - name: Multi-distro detection tests
+        run: bash tests/test-multidistro.sh
