@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.log
+*.sql
+*.sql.gz
+*.bak
+*.zip
+.DS_Store
+.idea/
+.vscode/
+__pycache__/

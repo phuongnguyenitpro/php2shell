@@ -1,0 +1,19 @@
+name: Documentation and script checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  bash-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Bash syntax
+        run: |
+          bash -n scripts/lib/php-version.sh
+          bash -n scripts/php2shell-audit.sh
+          bash -n scripts/php2shell-verify.sh
+          bash -n tests/run-tests.sh
+      - name: Run local baseline tests
+        run: bash tests/run-tests.sh
