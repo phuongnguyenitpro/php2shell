@@ -1,5 +1,8 @@
 # PHP2Shell — Community Security Guide & Toolkit
 
+> **NEW – PHP2Shell Multi-Distro v3.0.0 (pre-release):** [OS support matrix, safety notes and commands](docs/09-multi-distro.md). Run `bash scripts/php2shell-multidistro.sh check` to inventory standard PHP packages on Debian/Ubuntu, RHEL family, Alpine, SUSE and Arch. RHEL DNF remediation is experimental and needs DEV/UAT validation before PROD; existing Ubuntu/Debian helper remains unchanged. **Do not interpret a version-only check as vendor patch evidence.** [v3.0.0 Release Notes](docs/RELEASE_NOTES-v3.0.0.md).
+
+
 > **PHUONGIT | Defensive Security · PHP Core**  
 > **CVE-2026-109618 · CVE-2026-109619 · Critical (CVSS v4.0 9.2 theo advisory)**  
 > **Cập nhật:** 22/10/2026 · **Phạm vi:** Hướng dẫn phòng vệ, kiểm kê runtime và khắc phục có kiểm soát; không cung cấp mã khai thác.

@@ -1,3 +1,9 @@
+## v3.0.0 – Multi-Distro pre-release (2026-10-23)
+
+- New Bash entrypoint: `scripts/php2shell-multidistro.sh` for local inventory and package plan on APT, DNF, APK, Zypper, Pacman families.
+- Introduced shared `os-family.sh`, conservative vendor/backport checks and guarded RHEL-family DNF remediation. Ubuntu/Debian helper remains unchanged.
+- Added conservative OS version guard (Ubuntu 22.04/24.04/26.04, Debian 12/13 for APT remediation), 18 OS tests, CI and operational docs. **Pre-release:** DNF remediation is not production-certified; publish only after CI success on main.
+
 # Changelog
 
 ## v2.0.0 — 2026-10-22
