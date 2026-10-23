@@ -35,7 +35,11 @@ if bash "$ROOT/scripts/php2shell-multidistro.sh" invalid >/dev/null 2>&1; then
 fi
 echo 'PASS syntax/help/invalid arguments'
 
-printf '0\n' | bash "$ROOT/scripts/php2shell-multidistro.sh" menu | grep -q 'Exiting PHP2Shell.'
-printf '9\n0\n' | bash "$ROOT/scripts/php2shell-multidistro.sh" menu | grep -q 'Invalid selection.'
-printf '6\n0\n' | bash "$ROOT/scripts/php2shell-multidistro.sh" menu | grep -q 'SUPPORT MATRIX'
+# Capture complete output before asserting to avoid grep -q closing a live pipe.
+output="$(printf '0\n' | bash "$ROOT/scripts/php2shell-multidistro.sh" menu)"
+grep -q 'Exiting PHP2Shell.' <<< "$output"
+output="$(printf '9\n0\n' | bash "$ROOT/scripts/php2shell-multidistro.sh" menu)"
+grep -q 'Invalid selection.' <<< "$output"
+output="$(printf '6\n0\n' | bash "$ROOT/scripts/php2shell-multidistro.sh" menu)"
+grep -q 'SUPPORT MATRIX' <<< "$output"
 printf 'PASS menu navigation and non-destructive exits\n'
