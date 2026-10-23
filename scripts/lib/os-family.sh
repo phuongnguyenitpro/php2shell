@@ -26,6 +26,13 @@ php2shell_os_detect() {
   esac
   # CentOS Linux is EOL; Stream 8 is EOL as well. Allow Stream 9 only.
   if [[ "$id" == centos && ( "$NAME" != *"CentOS Stream"* || "$ver" != 9* ) ]]; then tier=audit; fi
+  # EOL/ESM Ubuntu or Debian builds need manual vendor checks.
+  if [[ "$family" == debian && "$tier" == remediate ]]; then
+    case "$id:$ver" in
+      ubuntu:22.04|ubuntu:24.04|ubuntu:26.04|debian:12|debian:13) ;;
+      *) tier=audit ;;
+    esac
+  fi
   # DNF5/RHEL 10 and unknown/legacy versions require a separate supported adapter.
   if [[ "$family" == rhel && "$tier" == remediate && "$ver" != 8* && "$ver" != 9* ]]; then tier=audit; fi
   printf '%s|%s|%s|%s|%s\n' "$id" "$ver" "$family" "$pm" "$tier"

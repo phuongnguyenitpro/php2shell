@@ -28,3 +28,26 @@ jobs:
 
       - name: Multi-distro detection tests
         run: bash tests/test-multidistro.sh
+
+  github-release-v3:
+    name: Publish v3.0.0 pre-release
+    needs: bash-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create release after successful main branch tests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          if gh release view v3.0.0 >/dev/null 2>&1; then
+            echo 'Release v3.0.0 already exists. Skipping.'
+            exit 0
+          fi
+          test -s docs/RELEASE_NOTES-v3.0.0.md
+          gh release create v3.0.0 --target "$GITHUB_SHA" \
+            --title "PHP2Shell v3.0.0 – Multi-Distro (Pre-release)" \
+            --notes-file docs/RELEASE_NOTES-v3.0.0.md --prerelease

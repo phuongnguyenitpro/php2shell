@@ -1,4 +1,4 @@
-# PHP2Shell v2: Multi-Distro (experimental review branch)
+# PHP2Shell v3.0.0: Multi-Distro (pre-release)
 
 **Mục đích:** kiểm kê, lập kế hoạch, hỗ trợ cập nhật có phê duyệt. Không quét Internet, không thử khai thác, không chứng minh host đã sạch mã độc.
 
@@ -21,10 +21,10 @@ sudo bash scripts/php2shell-multidistro.sh remediate
 
 | Hệ | OS Detection | Inventory | Patch plan | Automated patch |
 | --- | --- | --- | --- | --- |
-| Ubuntu / Debian (APT packages) | Có | Có | Candidate | Helper hiện hữu, có xác nhận, PHP-FPM tiêu chuẩn |
+| Ubuntu 22.04/24.04/26.04, Debian 12/13 (APT packages) | Có | Có | Candidate | Helper hiện hữu, có xác nhận, PHP-FPM tiêu chuẩn |
 | RHEL / Rocky / AlmaLinux / Oracle Linux 8/9 | Có | Có | Vendor `dnf updateinfo` | **Thử nghiệm**: standard PHP RPM, có advisory liên quan cả hai CVE, xác nhận 2 bước |
 | CentOS Stream 9 | Có | Có | Vendor advisory | **Thử nghiệm** như RHEL 9 |
-| CentOS Linux 7/8, CentOS Stream 8 | Có | Có | Thủ công | Không (EOL) |
+| Ubuntu/Debian cũ, CentOS Linux 7/8, CentOS Stream 8 | Có | Có | Thủ công | Không (EOL/kiểm chứng hỗ trợ) |
 | RHEL family 10 (DNF5), Fedora, Amazon Linux 2023 | Có | Có | DNF advisory | Không trong P0 |
 | Alpine | Có | Có qua APK | Lệnh hướng dẫn | Không |
 | SLES/openSUSE | Có | Có qua RPM | Lệnh hướng dẫn | Không |
@@ -56,6 +56,6 @@ dnf list installed 'php*'
 
 ### Giới hạn kiểm thử hiện tại
 
-`bash tests/test-multidistro.sh` xác nhận 15 tình huống nhận diện OS, cú pháp và tham số. **Chưa** có integration test giao dịch package thực tế trên Rocky/Alma/RHEL/Debian VM. GitHub CI trên Ubuntu runner không chứng minh DNF remediation đã an toàn trên từng distro. Trước khi phát hành stable phải thực hiện E2E VM matrix, thu thập evidence và ký nghiệm thu.
+`bash tests/test-multidistro.sh` xác nhận 18 tình huống nhận diện OS, cú pháp và tham số. **Chưa** có integration test giao dịch package thực tế trên Rocky/Alma/RHEL/Debian VM. GitHub CI trên Ubuntu runner không chứng minh DNF remediation đã an toàn trên từng distro. Trước khi phát hành stable phải thực hiện E2E VM matrix, thu thập evidence và ký nghiệm thu.
 
 Nguồn: [DNF reference](https://dnf.readthedocs.io/en/stable/command_ref.html) · [Rocky Errata](https://docs.rockylinux.org/latest/teams/rel_eng/errata/) · [Alma Errata](https://wiki.almalinux.org/documentation/errata.html) · [PHP Alpine](https://www.php.net/manual/en/install.unix.alpine.php)

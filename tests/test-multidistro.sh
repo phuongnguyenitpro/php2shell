@@ -12,6 +12,9 @@ assert_os() {
 }
 assert_os ubuntu 24.04 debian 'ubuntu|24.04|debian|apt|remediate'
 assert_os debian 12 '' 'debian|12|debian|apt|remediate'
+assert_os debian 11 '' 'debian|11|debian|apt|audit'
+assert_os ubuntu 20.04 debian 'ubuntu|20.04|debian|apt|audit'
+assert_os ubuntu 26.04 debian 'ubuntu|26.04|debian|apt|remediate'
 assert_os rocky 9.6 'rhel fedora' 'rocky|9.6|rhel|dnf|remediate'
 assert_os almalinux 9.6 'rhel centos fedora' 'almalinux|9.6|rhel|dnf|remediate'
 assert_os rhel 10.0 fedora 'rhel|10.0|rhel|dnf|audit'

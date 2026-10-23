@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PHP2Shell v2 multi-distribution dispatcher. Never remote scans or exploits.
+# PHP2Shell v3 multi-distribution dispatcher. Never remote scans or exploits.
 set -Eeuo pipefail
 export LC_ALL=C
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -18,7 +18,7 @@ fi
 case "$mode" in check|audit|verify|plan|remediate) ;; *) echo 'Unknown action' >&2; exit 64;; esac
 IFS='|' read -r distro os_version family manager tier < <(php2shell_os_detect /etc/os-release)
 header() {
-  printf 'PHP2Shell v2 | action=%s | OS=%s %s | family=%s | PM=%s | remediation=%s\n' \
+  printf 'PHP2Shell v3 | action=%s | OS=%s %s | family=%s | PM=%s | remediation=%s\n' \
     "$mode" "$distro" "$os_version" "$family" "$manager" "$tier"
 }
 packages() {
