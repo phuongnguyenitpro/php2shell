@@ -5,9 +5,13 @@ export LC_ALL=C
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$ROOT/lib/os-family.sh"
 mode="${1:-check}"
+# Preserve non-interactive no-arg check; open menu automatically on a terminal.
+if (( $# == 0 )) && [[ -t 0 ]]; then mode=menu; fi
 if [[ "$mode" == -h || "$mode" == --help ]]; then
   cat <<'HELP'
-Usage: bash scripts/php2shell-multidistro.sh {check|audit|verify|plan|remediate}
+Usage: bash scripts/php2shell-multidistro.sh {menu|check|audit|verify|plan|remediate}
+menu: interactive numbered navigation; no arguments also opens menu on a TTY
+no arguments in non-TTY automation: backward-compatible check
 check/audit/verify/plan: read-only (DNF/APT may read/update cache during package queries)
 remediate: interactive, Debian APT helper or gated RHEL-family DNF4 update
 OS-specific inventory is informational; it is not CVE-remediation proof.
@@ -15,7 +19,7 @@ HELP
   exit 0
 fi
 [[ $# -le 1 ]] || { echo 'Unexpected arguments' >&2; exit 64; }
-case "$mode" in check|audit|verify|plan|remediate) ;; *) echo 'Unknown action' >&2; exit 64;; esac
+case "$mode" in menu|check|audit|verify|plan|remediate) ;; *) echo 'Unknown action' >&2; exit 64;; esac
 IFS='|' read -r distro os_version family manager tier < <(php2shell_os_detect /etc/os-release)
 header() {
   printf 'PHP2Shell v3 | action=%s | OS=%s %s | family=%s | PM=%s | remediation=%s\n' \
@@ -141,7 +145,70 @@ rhel_remediate() {
   dnf upgrade --cve "${cves[0]}" --cve "${cves[1]}" "${pkgs[@]}"
   echo 'Patch transaction attempted. FPM NOT restarted. Verify advisory, web-serving runtime and test applications.'
 }
-if [[ "$mode" == remediate ]]; then
+menu() {
+  local choice action answer
+  while :; do
+    printf '\n=======================================================\n'
+    printf ' PHUONGIT | PHP2Shell Multi-Distro Security Toolkit\n'
+    printf ' OS: %s %s | Family: %s | Package Manager: %s\n' "$distro" "$os_version" "$family" "$manager"
+    printf ' Remediation eligibility: %s (not PROD certification)\n' "$tier"
+    printf '=======================================================\n'
+    printf ' 1) Check      - PHP inventory / OS / FPM                 [READ-ONLY]\n'
+    printf ' 2) Audit      - Security inventory                        [READ-ONLY]\n'
+    printf ' 3) Verify     - Upstream baseline + WARN/FAIL            [READ-ONLY]\n'
+    printf ' 4) Plan       - PHP patch candidates / vendor advisories [NO PKG CHANGES]\n'
+    printf ' 5) Remediate  - Interactive APT / gated DNF update       [MAY CHANGE OS]\n'
+    printf ' 6) Support    - Supported distro / operating limits      [INFORMATION]\n'
+    printf ' 0) Exit\n'
+    printf '=======================================================\n'
+    read -r -p 'Choose [0-6]: ' choice || { printf '\n'; return 0; }
+    case "$choice" in
+      0) printf 'Exiting PHP2Shell.\n'; return 0 ;;
+      1) action=check ;;
+      2) action=audit ;;
+      3) action=verify ;;
+      4) action=plan ;;
+      5) action=remediate ;;
+      6)
+        cat <<'SUPPORT'
+SUPPORT MATRIX (consult docs/09-multi-distro.md for details):
+  Ubuntu/Debian standard PHP-FPM: APT helper (selected supported OS versions).
+  RHEL/Rocky/Alma/Oracle 8/9, CentOS Stream 9: gated DNF4 experimental.
+  Fedora/Amazon Linux/Alpine/SUSE/Arch: audit/plan only.
+  Legacy/EOL/custom PHP/container: manual validation and vendor support.
+  Upstream PHP version comparison is NOT proof of a vendor-backported patch.
+  Always use backup, DEV/UAT, change approval, rollback and post-patch tests.
+SUPPORT
+        continue ;;
+      *) printf 'Invalid selection. Choose 0-6.\n'; continue ;;
+    esac
+    if [[ "$action" == remediate ]]; then
+      if [[ "$tier" != remediate ]]; then
+        printf 'This OS is AUDIT ONLY. No automated remediation.\n'
+        continue
+      fi
+      printf '\nWARNING: This can modify PHP packages/configuration and disrupt sites.\n'
+      printf 'Backup, DEV/UAT, maintenance window and formal approval are required.\n'
+      read -r -p 'Type REMEDIATE to enter the OS-specific remediation flow: ' answer || {
+        printf '\nCancelled.\n'
+        continue
+      }
+      if [[ "$answer" != REMEDIATE ]]; then
+        printf 'Cancelled; no remediation command started.\n'
+        continue
+      fi
+    fi
+    if bash "$ROOT/php2shell-multidistro.sh" "$action"; then
+      printf '\nCompleted: %s.\n' "$action"
+    else
+      local rc=$?
+      printf '\nAction %s exited with code %d. Review warnings/errors above.\n' "$action" "$rc"
+    fi
+  done
+}
+if [[ "$mode" == menu ]]; then
+  menu
+elif [[ "$mode" == remediate ]]; then
   header
   case "$tier:$family" in
     remediate:debian) exec bash "$ROOT/php2shell-remediate.sh" ;;

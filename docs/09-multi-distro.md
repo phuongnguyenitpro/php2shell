@@ -2,6 +2,19 @@
 
 **Mục đích:** kiểm kê, lập kế hoạch, hỗ trợ cập nhật có phê duyệt. Không quét Internet, không thử khai thác, không chứng minh host đã sạch mã độc.
 
+## Menu tương tác đa nền tảng
+
+```bash
+# Dùng nhánh main để có menu mới
+git clone https://github.com/phuongnguyenitpro/php2shell.git
+cd php2shell
+bash scripts/php2shell-multidistro.sh menu
+```
+
+Menu 1 Check (inventory), 2 Audit, 3 Verify, 4 Plan (APT candidate/DNF advisory), 5 Remediate (chỉ Ubuntu/Debian hoặc DNF4 thử nghiệm khi OS được phép), 6 Support, 0 Exit. Menu 5 yêu cầu gõ **REMEDIATE** trước khi vào luồng xác nhận riêng của từng OS. Khi chọn 1–4, cảnh báo hay exit-code bất thường sẽ được thông báo rồi trở về menu; không tự nâng cấp. Các hệ Alpine/SUSE/Arch chỉ hỗ trợ kiểm kê và hướng dẫn plan, không tự khắc phục.
+
+**Không dùng `sudo` cho check/audit/verify/plan nếu không cần.** Chỉ dùng `sudo bash scripts/php2shell-multidistro.sh menu` trong DEV/UAT khi thực sự cần vào menu Remediate; kiểm tra backup, repository và maintenance window trước thay đổi. Nhánh `main` cập nhật sau tag `v3.0.0`.
+
 ## Quick Start
 
 ~~~bash

@@ -1,5 +1,47 @@
 # PHP2Shell — Community Security Guide & Toolkit
 
+## Quick Start — Menu đa nền tảng (nhánh main)
+
+**Cách chạy đơn giản nhất trên Ubuntu, Debian, Rocky, AlmaLinux, RHEL và những bản phân phối khác:**
+
+```bash
+git clone https://github.com/phuongnguyenitpro/php2shell.git
+cd php2shell
+bash scripts/php2shell-multidistro.sh menu
+```
+
+Khi chạy trực tiếp trên terminal, gọi `bash scripts/php2shell-multidistro.sh` **không có tham số** cũng mở menu; trong automation/non-interactive, lệnh không tham số vẫn chạy `check` để tương thích ngược.
+
+```text
+PHUONGIT | PHP2Shell Multi-Distro Security Toolkit
+OS: <distro> | Family: <family> | Package Manager: <apt/dnf/apk/...>
+
+ 1) Check      - Kiểm kê PHP / PHP-FPM / OS       [READ-ONLY]
+ 2) Audit      - Kiểm toán cấu hình và phiên bản [READ-ONLY]
+ 3) Verify     - Đối chiếu upstream baseline      [READ-ONLY]
+ 4) Plan       - Kiểm tra package / bản vá vendor [KHÔNG NÂNG CẤP]
+ 5) Remediate  - Vào quy trình nâng cấp có duyệt  [CÓ THỂ THAY ĐỔI]
+ 6) Support    - Phạm vi hỗ trợ & giới hạn        [THÔNG TIN]
+ 0) Exit
+```
+
+| Menu | Mục đích | Ubuntu / Debian | RHEL / Rocky / Alma / Oracle / CentOS Stream | Alpine / SUSE / Arch |
+| --- | --- | --- | --- | --- |
+| 1–3 | Check, Audit, Verify | Có | Có, cần đối chiếu vendor backport | Có, kiểm kê best-effort |
+| 4 | Plan bản vá | APT candidate | DNF updateinfo | Gợi ý kiểm tra thủ công |
+| 5 | Remediate | Helper APT/PHP-FPM hiện hữu; chọn nhánh và xác nhận | DNF4 **thử nghiệm**, điều kiện chặt và cần xác nhận | **Không hỗ trợ tự vá** |
+| 6 | Support | Ma trận hỗ trợ và giới hạn | Ma trận hỗ trợ và giới hạn | Ma trận hỗ trợ và giới hạn |
+
+> **Quan trọng:** Menu 1–4 không chủ động cập nhật PHP. Menu 4 có thể đọc/làm mới metadata package manager. Menu 5 có thể thay đổi package hoặc cấu hình sau khi người vận hành xác nhận. **Không chạy Remediate trực tiếp trên Production nếu chưa hoàn thành backup, DEV/UAT và phê duyệt thay đổi.** Kết quả PASS theo PHP version không đủ chứng minh bản vá vendor đã được áp dụng cho PHP runtime đang phục vụ website.
+
+**Chạy trực tiếp không cần menu:** `bash scripts/php2shell-multidistro.sh check`, `audit`, `verify`, `plan`. Nếu muốn sửa hệ thống sau nghiệm thu: `sudo bash scripts/php2shell-multidistro.sh remediate`.
+
+**Phân biệt:** `scripts/php2shell-remediate.sh` là **menu APT cũ**, chỉ dùng cho Ubuntu/Debian; `scripts/php2shell-multidistro.sh menu` là **menu chung** cho nhiều distro. [Xem hướng dẫn chi tiết](docs/09-multi-distro.md).
+
+**Lưu ý phiên bản:** Menu này được bổ sung trên `main` sau khi đã xuất bản tag `v3.0.0`; bản source cố định theo tag `v3.0.0` không tự thay đổi.
+
+
+
 > **NEW – PHP2Shell Multi-Distro v3.0.0 (pre-release):** [OS support matrix, safety notes and commands](docs/09-multi-distro.md). Run `bash scripts/php2shell-multidistro.sh check` to inventory standard PHP packages on Debian/Ubuntu, RHEL family, Alpine, SUSE and Arch. RHEL DNF remediation is experimental and needs DEV/UAT validation before PROD; existing Ubuntu/Debian helper remains unchanged. **Do not interpret a version-only check as vendor patch evidence.** [v3.0.0 Release Notes](docs/RELEASE_NOTES-v3.0.0.md).
 
 

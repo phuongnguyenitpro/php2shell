@@ -1,3 +1,10 @@
+## Unreleased (main) — Interactive Multi-Distro Menu (2026-10-23)
+
+- New `menu` command with 1–6 choices and 0 Exit on the Multi-Distro dispatcher, available automatically for no-arg interactive terminals.
+- Safe selection flow: read-only inspection by default; gated remediation requires explicit confirmation. Existing explicit subcommands and noninteractive no-argument `check` remain supported.
+- Top-of-README quick start, menu table, supported OS matrix, and test coverage for menu navigation.
+- This `main` change **postdates the published `v3.0.0` tag**; tagged source is not rewritten.
+
 ## v3.0.0 – Multi-Distro pre-release (2026-10-23)
 
 - New Bash entrypoint: `scripts/php2shell-multidistro.sh` for local inventory and package plan on APT, DNF, APK, Zypper, Pacman families.
